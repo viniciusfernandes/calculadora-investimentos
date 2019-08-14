@@ -1,10 +1,11 @@
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 public class Calculadora {
     public static void main(final String[] args) {
 
-        final int totalMeses = 12 * 5;
-        final double valorMensal = 6000d;
+        final int totalMeses = 12 * 20;
+        final double valorMensal = 5000d;
         final double valorInvestido = totalMeses * valorMensal;
         final double indiceAnual = 5.0 / 100d;
         final double inflacaoAnual = 4.5 / 100d;
@@ -31,22 +32,23 @@ public class Calculadora {
 
         System.out.println(header);
 
-        System.out.println("valor investido: " + NumberFormat.getCurrencyInstance().format(valorInvestido));
-        System.out.println("valor deposito mensal: " + NumberFormat.getCurrencyInstance().format(valorMensal));
-        System.out.println("total meses: " + totalMeses);
-        System.out.println("indice inflacao anual: " + formatPercentualIndex(inflacaoAnual));
+        System.out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(valorInvestido));
+        System.out.println("Dep. Mensal    : " + NumberFormat.getCurrencyInstance().format(valorMensal));
+        System.out.println("Total Meses    : " + totalMeses);
+        System.out.println("Indice Anual   : " + formatPercentualIndex(indiceAnual));
+        System.out.println("Inflacao Anual : " + formatPercentualIndex(inflacaoAnual));
 
         System.out.println(margem);
 
         System.out.println(footer);
-        System.out.println("valor final de " + NumberFormat.getCurrencyInstance().format(valorFinal));
-        System.out.println("valor real de " + NumberFormat.getCurrencyInstance().format(valorReal));
-        System.out.println("valor inflacao incidente" + NumberFormat.getCurrencyInstance().format(valorInflacaoIncidente));
-        System.out.println(String.format("inflacao de acumulada %.3f%s", inflacaoAcumulada * 100d, "%"));
-        System.out.println(String.format("inflacao de acumulada ao mes %.3f%s", inflacaoAcumuladaMensal * 100d, "%"));
+        System.out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(valorFinal));
+        System.out.println("Val. Real      : " + NumberFormat.getCurrencyInstance().format(valorReal));
+        System.out.println("Inflacao Incid : " + NumberFormat.getCurrencyInstance().format(valorInflacaoIncidente));
+        System.out.println("Inflacao Acumul: " + formatPercentualIndex(inflacaoAcumulada));
+        System.out.println("Inflacao Mensal: " + formatPercentualIndex(inflacaoAcumuladaMensal));
 
-        System.out.println("ganho final " + formatPercentualIndex(indiceGanhoFinal));
-        System.out.println("ganho real " + formatPercentualIndex(indiceGanhoReal));
+        System.out.println("Ganho Final    : " + formatPercentualIndex(indiceGanhoFinal));
+        System.out.println("Ganho Real     : " + formatPercentualIndex(indiceGanhoReal));
 
         System.out.println(margem);
 
@@ -71,6 +73,6 @@ public class Calculadora {
     }
 
     private static String formatPercentualIndex(final double index) {
-        return (index * 100d) + "%";
+        return (new DecimalFormat("#.###").format(index * 100) + "%").replace(".", ",");
     }
 }
