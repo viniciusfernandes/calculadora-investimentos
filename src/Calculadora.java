@@ -9,16 +9,17 @@ public class Calculadora {
 		final int totalMeses = 12 * 20;
 		final double valorMensal = 5000d;
 		final double valorInvestido = totalMeses * valorMensal;
-		final double indiceAnual = 5.0 / 100d;
+		final double indiceAnual = 9.0 / 100d;
+		final double indiceMensal = calcularIndiceMensal(indiceAnual);
 		final double inflacaoAnual = 4.5 / 100d;
+		final double inflacaoMensal = calcularIndiceMensal(inflacaoAnual);
+		final double indiceReal = calcularIndiceReal(indiceMensal, inflacaoMensal);
 
-		final int quantidadeSaquesFuturos = 12 * 24;
-		final double valorSaqueFuturo = 4000.0;
-
-		final double indiceMensal = indiceAnual / 12d;
-		final double inflacaoMensal = 1 - Math.pow((1 - inflacaoAnual), 1d / 12d);
-
-		final double indiceReal = (1 + indiceMensal) / (1 + inflacaoMensal) - 1;
+		final double indiceAnualAposentadoria = 6.0 / 100d;
+		final double indiceMensalAposentadoria = calcularIndiceMensal(indiceAnualAposentadoria);
+		final double indiceRealAposentadoria = calcularIndiceReal(indiceMensalAposentadoria, inflacaoMensal);
+		final int quantidadeSaquesFuturos = 12 * 25;
+		final double valorSaqueFuturo = 7800.0;
 
 		final double valorFinal = valorMensal * calcularIndiceAcumulado(totalMeses, indiceMensal);
 		final double valorReal = valorMensal * calcularIndiceAcumulado(totalMeses, indiceReal);
@@ -38,11 +39,11 @@ public class Calculadora {
 
 		System.out.println(header);
 
-		System.out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(valorInvestido));
 		System.out.println("Dep. Mensal    : " + NumberFormat.getCurrencyInstance().format(valorMensal));
 		System.out.println("Total Meses    : " + totalMeses);
 		System.out.println("Indice Anual   : " + formatPercentualIndex(indiceAnual));
 		System.out.println("Inflacao Anual : " + formatPercentualIndex(inflacaoAnual));
+		System.out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(valorInvestido));
 
 		System.out.println(margem);
 
@@ -58,10 +59,12 @@ public class Calculadora {
 
 		System.out.println(subfooter);
 		System.out.println("Val. Saque     : " + NumberFormat.getCurrencyInstance().format(valorSaqueFuturo));
-		System.out.println("Qtde. Saques   : " + quantidadeSaquesFuturos);
+		System.out.println("Total Meses    : " + quantidadeSaquesFuturos);
+		System.out.println("Indice Anual   : " + formatPercentualIndex(indiceAnualAposentadoria));
+
 		System.out.println(
 				"Val. Restante  : " + NumberFormat.getCurrencyInstance().format(calcularValorRestanteSaque(valorFinal,
-						valorSaqueFuturo, indiceReal, inflacaoMensal, quantidadeSaquesFuturos)));
+						valorSaqueFuturo, indiceRealAposentadoria, inflacaoMensal, quantidadeSaquesFuturos)));
 
 		System.out.println(margem);
 
@@ -102,5 +105,13 @@ public class Calculadora {
 		}
 
 		return montante * idxRendimentoAcumulado - valorSaque * idxSaqueAcumulado;
+	}
+
+	public static double calcularIndiceMensal(double indice) {
+		return 1 - Math.pow((1 - indice), 1d / 12d);
+	}
+
+	public static double calcularIndiceReal(double indiceRendimento, double indiceInflacao) {
+		return (1 + indiceRendimento) / (1 + indiceInflacao) - 1;
 	}
 }
