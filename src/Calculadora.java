@@ -5,116 +5,117 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 public class Calculadora {
-    public static void main(final String[] args) {
+	public static double calcularIndiceAcumulado(final int frequencia, final double fator) {
+		double indiceAcumulado = -1;
+		double indice = 1 + fator;
 
-        final int anosInvestimento = 20;
-        final int totalMeses = 12 * anosInvestimento;
-        final double valorMensal = 5000d;
-        final double valorInvestido = totalMeses * valorMensal;
-        final double indiceAnual = 9.0 / 100d;
-        final double indiceMensal = calcularIndiceMensal(indiceAnual);
-        final double inflacaoAnual = 4.5 / 100d;
-        final double inflacaoMensal = calcularIndiceMensal(inflacaoAnual);
-        final double indiceReal = calcularIndiceReal(indiceMensal, inflacaoMensal);
+		if (frequencia <= 0) {
+			indiceAcumulado = 1;
+		} else if (frequencia == 1) {
+			indiceAcumulado = indice + 1;
+		} else {
+			indiceAcumulado = indice + 1;
+			for (int i = 2; i <= frequencia; i++) {
+				indice *= 1 + fator;
+				indiceAcumulado += indice;
+			}
+		}
+		return indiceAcumulado;
+	}
 
-        final int anosSaque = 25;
-        final int quantidadeSaquesFuturos = 12 * anosSaque;
-        final double valorSaqueFuturo = 7800.0;
-        final double indiceAnualAposentadoria = 6.0 / 100d;
-        final double indiceMensalAposentadoria = calcularIndiceMensal(indiceAnualAposentadoria);
-        final double indiceRealAposentadoria = calcularIndiceReal(indiceMensalAposentadoria, inflacaoMensal);
+	public static double calcularIndiceMensal(final double indice) {
+		return 1 - Math.pow(1 - indice, 1d / 12d);
+	}
 
-        final double valorFinal = valorMensal * calcularIndiceAcumulado(totalMeses, indiceMensal);
-        final double valorReal = valorMensal * calcularIndiceAcumulado(totalMeses, indiceReal);
-        final double valorInflacaoIncidente = valorMensal * calcularIndiceAcumulado(totalMeses, -inflacaoMensal);
-        final double inflacaoAcumulada = (valorFinal - valorReal) / valorReal;
+	public static double calcularIndiceReal(final double indiceRendimento, final double indiceInflacao) {
+		return (1 + indiceRendimento) / (1 + indiceInflacao) - 1;
+	}
 
-        final double inflacaoAcumuladaMensal = 1 - Math.pow((1 - inflacaoAcumulada), 1d / totalMeses);
+	public static double calcularValorRestanteSaque(final double montante, final double valorSaque,
+			final double idxReal, final double idxInflacao, final int totalSaques) {
+		if (totalSaques <= 0) {
+			return montante;
+		}
 
-        final double valorBase = valorMensal * calcularIndiceAcumulado(totalMeses, -inflacaoMensal);
-        final double indiceGanhoFinal = (valorFinal - valorBase) / valorBase;
-        final double indiceGanhoReal = (valorReal - valorBase) / valorBase;
+		final double idxRendimentoAcumulado = pow(1 + idxReal, totalSaques);
+		double idxSaqueAcumulado = 0;
+		for (int j = 0; j < totalSaques; j++) {
+			idxSaqueAcumulado += pow(1 + idxReal, j) * pow(1 + idxInflacao, totalSaques - 1 - j);
+		}
 
-        final String margem = "---------------------------------------";
-        final String header = margem + "\nValores Iniciais\n" + margem;
-        final String footer = "\n\nInvestimentos\n" + margem;
-        final String subfooter = "\n\nSaques\n" + margem;
+		return montante * idxRendimentoAcumulado - valorSaque * idxSaqueAcumulado;
+	}
 
-        out.println(header);
+	private static String formatPercentualIndex(final double index) {
+		return (new DecimalFormat("#.###").format(index * 100) + "%").replace(".", ",");
+	}
 
-        out.println("Dep. Mensal    : " + NumberFormat.getCurrencyInstance().format(valorMensal));
-        out.println("Anos Invest.   : " + anosInvestimento);
-        out.println("Indice Anual   : " + formatPercentualIndex(indiceAnual));
-        out.println("Inflacao Anual : " + formatPercentualIndex(inflacaoAnual));
-        out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(valorInvestido));
+	public static void main(final String[] args) {
 
-        out.println(margem);
+		final int anosInvestimento = 20;
+		final int totalMeses = 12 * anosInvestimento;
+		final double valorMensal = 5000d;
+		final double valorInvestido = totalMeses * valorMensal;
+		final double indiceAnual = 9.0 / 100d;
+		final double indiceMensal = calcularIndiceMensal(indiceAnual);
+		final double inflacaoAnual = 4.5 / 100d;
+		final double inflacaoMensal = calcularIndiceMensal(inflacaoAnual);
+		final double indiceReal = calcularIndiceReal(indiceMensal, inflacaoMensal);
 
-        out.println(footer);
-        out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(valorFinal));
-        out.println("Val. Real      : " + NumberFormat.getCurrencyInstance().format(valorReal));
-        out.println("Inflacao Incid : " + NumberFormat.getCurrencyInstance().format(valorInflacaoIncidente));
-        out.println("Inflacao Acumul: " + formatPercentualIndex(inflacaoAcumulada));
-        out.println("Inflacao Mensal: " + formatPercentualIndex(inflacaoAcumuladaMensal));
+		final int anosSaque = 25;
+		final int quantidadeSaquesFuturos = 12 * anosSaque;
+		final double valorSaqueFuturo = 7800.0;
+		final double indiceAnualAposentadoria = 0.0 / 100d;
+		final double indiceMensalAposentadoria = calcularIndiceMensal(indiceAnualAposentadoria);
+		calcularIndiceReal(indiceMensalAposentadoria, inflacaoMensal);
 
-        out.println("Ganho Final    : " + formatPercentualIndex(indiceGanhoFinal));
-        out.println("Ganho Real     : " + formatPercentualIndex(indiceGanhoReal));
+		final double valorFinal = valorMensal * calcularIndiceAcumulado(totalMeses, indiceMensal);
+		final double valorReal = valorMensal * calcularIndiceAcumulado(totalMeses, indiceReal);
+		final double valorInflacaoIncidente = valorMensal * calcularIndiceAcumulado(totalMeses, -inflacaoMensal);
+		final double inflacaoAcumulada = (valorFinal - valorReal) / valorReal;
 
-        out.println(subfooter);
-        out.println("Val. Saque     : " + NumberFormat.getCurrencyInstance().format(valorSaqueFuturo));
-        out.println("Anos Saque     : " + anosSaque);
-        out.println("Indice Anual   : " + formatPercentualIndex(indiceAnualAposentadoria));
+		final double inflacaoAcumuladaMensal = 1 - Math.pow(1 - inflacaoAcumulada, 1d / totalMeses);
 
-        out.println("Val. Restante  : " + NumberFormat.getCurrencyInstance()
-                        .format(calcularValorRestanteSaque(valorFinal, valorSaqueFuturo, indiceRealAposentadoria, inflacaoMensal,
-                                        quantidadeSaquesFuturos)));
+		final double valorBase = valorMensal * calcularIndiceAcumulado(totalMeses, -inflacaoMensal);
+		final double indiceGanhoFinal = (valorFinal - valorBase) / valorBase;
+		final double indiceGanhoReal = (valorReal - valorBase) / valorBase;
 
-        out.println(margem);
+		final String margem = "---------------------------------------";
+		final String header = margem + "\nValores Iniciais\n" + margem;
+		final String footer = "\n\nInvestimentos\n" + margem;
+		final String subfooter = "\n\nSaques\n" + margem;
 
-    }
+		out.println(header);
 
-    public static double calcularIndiceAcumulado(final int frequencia, final double fator) {
-        double indiceAcumulado = -1;
-        double indice = (1 + fator);
+		out.println("Dep. Mensal    : " + NumberFormat.getCurrencyInstance().format(valorMensal));
+		out.println("Anos Invest.   : " + anosInvestimento);
+		out.println("Indice Anual   : " + formatPercentualIndex(indiceAnual));
+		out.println("Inflacao Anual : " + formatPercentualIndex(inflacaoAnual));
+		out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(valorInvestido));
 
-        if (frequencia <= 0) {
-            indiceAcumulado = 1;
-        } else if (frequencia == 1) {
-            indiceAcumulado = indice + 1;
-        } else {
-            indiceAcumulado = indice + 1;
-            for (int i = 2; i <= frequencia; i++) {
-                indice *= (1 + fator);
-                indiceAcumulado += indice;
-            }
-        }
-        return indiceAcumulado;
-    }
+		out.println(margem);
 
-    private static String formatPercentualIndex(final double index) {
-        return (new DecimalFormat("#.###").format(index * 100) + "%").replace(".", ",");
-    }
+		out.println(footer);
+		out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(valorFinal));
+		out.println("Val. Real      : " + NumberFormat.getCurrencyInstance().format(valorReal));
+		out.println("Inflacao Incid : " + NumberFormat.getCurrencyInstance().format(valorInflacaoIncidente));
+		out.println("Inflacao Acumul: " + formatPercentualIndex(inflacaoAcumulada));
+		out.println("Inflacao Mensal: " + formatPercentualIndex(inflacaoAcumuladaMensal));
 
-    public static double calcularValorRestanteSaque(final double montante, final double valorSaque, final double idxReal,
-                    final double idxInflacao, final int totalSaques) {
-        if (totalSaques <= 0) {
-            return montante;
-        }
+		out.println("Ganho Final    : " + formatPercentualIndex(indiceGanhoFinal));
+		out.println("Ganho Real     : " + formatPercentualIndex(indiceGanhoReal));
 
-        final double idxRendimentoAcumulado = pow((1 + idxReal), totalSaques);
-        double idxSaqueAcumulado = 0;
-        for (int j = 0; j < totalSaques; j++) {
-            idxSaqueAcumulado += pow((1 + idxReal), j) * pow((1 + idxInflacao), totalSaques - 1 - j);
-        }
+		out.println(subfooter);
+		out.println("Val. Saque     : " + NumberFormat.getCurrencyInstance().format(valorSaqueFuturo));
+		out.println("Anos Saque     : " + anosSaque);
+		out.println("Indice Anual   : " + formatPercentualIndex(indiceAnualAposentadoria));
 
-        return montante * idxRendimentoAcumulado - valorSaque * idxSaqueAcumulado;
-    }
+		out.println(
+				"Val. Restante  : " + NumberFormat.getCurrencyInstance().format(calcularValorRestanteSaque(valorFinal,
+						valorSaqueFuturo, indiceReal, inflacaoMensal, quantidadeSaquesFuturos)));
 
-    public static double calcularIndiceMensal(final double indice) {
-        return 1 - Math.pow((1 - indice), 1d / 12d);
-    }
+		out.println(margem);
 
-    public static double calcularIndiceReal(final double indiceRendimento, final double indiceInflacao) {
-        return (1 + indiceRendimento) / (1 + indiceInflacao) - 1;
-    }
+	}
+
 }
