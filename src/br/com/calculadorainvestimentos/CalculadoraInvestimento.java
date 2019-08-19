@@ -1,10 +1,11 @@
+package br.com.calculadorainvestimentos;
 import static java.lang.Math.pow;
 import static java.lang.System.out;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class Calculadora {
+public class CalculadoraInvestimento {
 	public static double calcularIndiceAcumulado(final int frequencia, final double fator) {
 		double indiceAcumulado = -1;
 		double indice = 1 + fator;
