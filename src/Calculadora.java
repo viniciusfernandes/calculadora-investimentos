@@ -9,15 +9,15 @@ public class Calculadora {
 		new Calculadora().calcular();
 	}
 
-	private final double indiceAnual              = 10.0 / 100d;
-	private final double indiceAnualAposentadoria = 6.0 / 100d;
-	private final double indiceIR                 = 10.0 / 100d;
-	private final double inflacaoAnual            = 4.5 / 100d;
-	private final int    qtdeAportes              = 4;
-	private final int    qtdeSaques               = 4;
-	private final double valorAporte              = 1000d;
+	private final double	indiceAnual					= 10.0 / 100d;
+	private final double	indiceAnualAposentadoria	= 6.0 / 100d;
+	private final double	indiceIR					= 10.0 / 100d;
+	private final double	inflacaoAnual				= 4.5 / 100d;
+	private final int		qtdeAportes					= 4;
+	private final int		qtdeSaques					= 4;
+	private final double	valorAporte					= 1000d;
 
-	private final double valorSaque               = 1000.0;
+	private final double	valorSaque					= 1000.0;
 
 	public void calcular() {
 
@@ -39,6 +39,8 @@ public class Calculadora {
 		final double valorBase = valorAporte * calcularIndiceAcumulado(qtdeAportes, -idxInflacaoMensal);
 		final double indiceGanhoFinal = (valorFinal - valorBase) / valorBase;
 		final double indiceGanhoReal = (valorReal - valorBase) / valorBase;
+
+		final double valorSaqueFuturo = valorSaque * pow(1 + idxInflacaoMensal, qtdeAportes);
 
 		final String margem = "---------------------------------------";
 		final String header = margem + "\nValores Iniciais\n" + margem;
@@ -77,6 +79,7 @@ public class Calculadora {
 
 		out.println(subfooter);
 		out.println("Val. Saque     : " + NumberFormat.getCurrencyInstance().format(valorSaque));
+		out.println("Val. Saque Fut.: " + NumberFormat.getCurrencyInstance().format(valorSaqueFuturo));
 		out.println("Reinvest. Mens.: " + formatPercentualIndex(indiceAnualAposentadoria));
 
 		out.println("Anos Saque     : " + qtdeSaques / 12);
@@ -91,10 +94,10 @@ public class Calculadora {
 	public double calcularIndiceAcumulado(final int frequencia, final double fator) {
 		double indiceAcumulado = 0;
 
- 		for (int i = 0; i < frequencia; i++) {
-		 	indiceAcumulado += pow(1 + fator, i);
+		for (int i = 0; i < frequencia; i++) {
+			indiceAcumulado += pow(1 + fator, i);
 		}
-		
+
 		return indiceAcumulado;
 	}
 
