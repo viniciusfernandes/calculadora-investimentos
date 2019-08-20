@@ -1,32 +1,50 @@
 package br.com.calculadorainvestimentos;
 
 public class Aporte {
-    private double valor;
-    private double indiceRendiento;
-    private int tempoAplicacao;
+	private double valorInicial;
+	private double valor;
+	private double valorRestante;
+	private int posicao;
 
-    public double getValor() {
-        return valor;
-    }
+	public double getValorInicial() {
+		return valorInicial;
+	}
 
-    public void setValor(final double valor) {
-        this.valor = valor;
-    }
+	public void setValorInicial(double valorInicial) {
+		this.valorInicial = valorInicial;
+	}
 
-    public double getIndiceRendiento() {
-        return indiceRendiento;
-    }
+	public double getValor() {
+		return valor;
+	}
 
-    public void setIndiceRendiento(final double indiceRendiento) {
-        this.indiceRendiento = indiceRendiento;
-    }
+	public void setValor(double valor) {
+		this.valor = valor;
+	}
 
-    public int getTempoAplicacao() {
-        return tempoAplicacao;
-    }
+	public int getPosicao() {
+		return posicao;
+	}
 
-    public void setTempoAplicacao(final int tempoAplicacao) {
-        this.tempoAplicacao = tempoAplicacao;
-    }
+	public void setPosicao(int posicao) {
+		this.posicao = posicao;
+	}
+	
+
+	public double getValorRestante() {
+		return valorRestante;
+	}
+
+	public void setValorRestante(double valorRestante) {
+		this.valorRestante = valorRestante;
+	}
+
+	@Override
+	public String toString() {
+		return "Aporte [valorInicial=" + valorInicial + ", valor=" + valor + ", valorRestante=" + valorRestante
+				+ ", posicao=" + posicao + "]";
+	}
+
+	 
 
 }
