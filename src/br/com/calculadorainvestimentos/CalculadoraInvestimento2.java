@@ -8,7 +8,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CalculadoraInvestimento {
+public class CalculadoraInvestimento2 {
 
     private final List<Aporte> aportes = new ArrayList<>();
     private final double indiceAplicacao;
@@ -21,9 +21,8 @@ public class CalculadoraInvestimento {
     private final List<Double> saques = new ArrayList<>();
     private final double valorAporte;
     private final double valorSaque;
-    private final int TEMPO_MAX = 1000;
 
-    public CalculadoraInvestimento(
+    public CalculadoraInvestimento2(
                     final double aliquotaAplicacao, final double aliquotaReaplicacao, final double aliquotaIR,
                     final double aliquotaInflacao, final int qtdeAportes, final int qtdeSaques, final double valorAporte,
                     final double valorSaque) {
@@ -42,6 +41,8 @@ public class CalculadoraInvestimento {
         final double idxApliMes = calcularIndiceMensal(indiceAplicacao);
         final double idxInflMes = calcularIndiceMensal(indiceInflacao);
         final double idxReal = calcularIndiceReal(idxApliMes, idxInflMes);
+
+        final double idxReapliMes = calcularIndiceMensal(indiceReaplicacao);
 
         final double valorFinal = valorAporte * calcularIndiceAcumulado(qtdeAportes, idxApliMes);
         final double valorReal = valorAporte * calcularIndiceAcumulado(qtdeAportes, idxReal);
@@ -67,17 +68,13 @@ public class CalculadoraInvestimento {
         final String footer = "\n\nInvestimentos\n" + margem;
         final String subfooter = "\n\nSaques\n" + margem;
 
-        final AporteRestante aporteRestante = calcularAporteRestante();
-        final int qtdeMaxSaques = calcularQtdeMaxSaques();
+        final double valorRestante = calcularValorRestante();
+        final int qtdeMaxSaques = 999;// calcularQtdeMaxSaques(idxApliMes, idxInflMes);
 
         out.println(header);
 
         out.println("Aporte Mensal  : " + NumberFormat.getCurrencyInstance().format(valorAporte));
-        out.println("Saque Mensal   : " + NumberFormat.getCurrencyInstance().format(valorSaque));
-
-        out.println("Qtde Aportes   : " + qtdeAportes);
-        out.println("Qtde Saques    : " + qtdeSaques);
-
+        out.println("Anos Invest.   : " + qtdeAportes / 12);
         out.println("Rend. Anual    : " + formatPercentualIndex(indiceAplicacao));
         out.println("Rend. Mensal   : " + formatPercentualIndex(idxApliMes));
 
@@ -90,8 +87,6 @@ public class CalculadoraInvestimento {
 
         out.println(footer);
         out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(valorFinal));
-        out.println("Tempo Invest.  : " + formatarAnos(qtdeAportes));
-
         out.println("Val. Real      : " + NumberFormat.getCurrencyInstance().format(valorReal));
         out.println("Inflacao Incid : " + NumberFormat.getCurrencyInstance().format(valorInflacaoIncidente));
         out.println("Inflacao Acumul: " + formatPercentualIndex(idxInflAcumul));
@@ -101,20 +96,23 @@ public class CalculadoraInvestimento {
         out.println("Rend. Real     : " + formatPercentualIndex(indiceGanhoReal));
 
         out.println(subfooter);
+        out.println("Saque          : " + NumberFormat.getCurrencyInstance().format(valorSaque));
         out.println("Primeiro Saque : " + NumberFormat.getCurrencyInstance().format(valPrimeiroSaque));
         out.println("Último Saque   : " + NumberFormat.getCurrencyInstance().format(valUltimoSaque));
         out.println("Reinvest. Mens.: " + formatPercentualIndex(indiceReaplicacao));
 
-        out.println("Val. Restante  : " + NumberFormat.getCurrencyInstance().format(aporteRestante.getValor()) + " apos "
-            + aporteRestante.getQtdeSaques() + " saque(s)");
+        out.println("Anos. Max.     : " + 33333);
+        out.println("Qtde. Saq.     : " + qtdeSaques);
 
-        out.println("Qtde. Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAX ? "SEM LIMITES" : qtdeMaxSaques));
-        out.println("Tempo Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAX ? "SEM LIMITES" : formatarAnos(qtdeMaxSaques)));
+        out.println("Qtde. Max. Saq.: " + qtdeMaxSaques);
+        out.println("Tempo Saq      : " + qtdeMaxSaques / 12 + " anos e " + qtdeMaxSaques % 12 + " meses");
+
+        out.println("Val. Restante  : " + NumberFormat.getCurrencyInstance().format(valorRestante));
 
         out.println(margem);
     }
 
-    private double calcularIndiceAcumulado(final int frequencia, final double fator) {
+    public double calcularIndiceAcumulado(final int frequencia, final double fator) {
         double indiceAcumulado = 0;
 
         for (int i = 0; i < frequencia; i++) {
@@ -124,38 +122,36 @@ public class CalculadoraInvestimento {
         return indiceAcumulado;
     }
 
-    private double calcularIndiceMensal(final double indice) {
+    public double calcularIndiceMensal(final double indice) {
         return Math.pow(1 + indice, 1d / 12d) - 1;
     }
 
-    private double calcularIndiceReal(final double indiceRendimento, final double indiceInflacao) {
+    public double calcularIndiceReal(final double indiceRendimento, final double indiceInflacao) {
         return (1 + indiceRendimento) / (1 + indiceInflacao) - 1;
     }
 
-    private AporteRestante calcularAporteRestante() {
-        final double indiceAplicacaoMes = calcularIndiceMensal(indiceAplicacao);
-        final double indiceInflacaoMes = calcularIndiceMensal(indiceInflacao);
-        final double indiceReaplicacaoMes = calcularIndiceMensal(indiceReaplicacao);
-        final int idxSaqueInicial = qtdeAportes;
-
-        final double valorFinal = valorAporte * calcularIndiceAcumulado(qtdeAportes, indiceAplicacaoMes);
-        final double valorSaqueFuturo = valorSaque * pow((1 + indiceInflacaoMes), idxSaqueInicial);
-        return calcularAporteRestante(valorFinal, valorSaqueFuturo, indiceInflacaoMes, indiceReaplicacaoMes, qtdeSaques, 0);
+    private void efetuarReinvestimento() {
+        Aporte aporte = null;
+        for (int i = 0; i < aportes.size(); i++) {
+            aporte = aportes.get(i);
+            aporte.setValorRestante(aporte.getValorRestante() * (1 + indiceReaplicacao));
+        }
     }
 
-    private AporteRestante calcularAporteRestante(double valorFinal, double valorSaque, final double indiceInflacao,
-                    final double indiceReaplicacao, final int numMaxSaque, int numSaque) {
-        valorFinal -= valorSaque;
-        numSaque++;
-        if (valorFinal < 0) {
-            return new AporteRestante(valorFinal + valorSaque, numSaque - 1);
-        } else if (valorFinal == 0 || numSaque >= numMaxSaque) {
-            return new AporteRestante(valorFinal, numSaque);
-        }
+    private double calcularValorRestante() {
+        return calcularValorRestante(qtdeSaques);
+    }
 
-        valorSaque *= (1 + indiceInflacao);
-        valorFinal *= (1 + indiceReaplicacao);
-        return calcularAporteRestante(valorFinal, valorSaque, indiceInflacao, indiceReaplicacao, numMaxSaque, numSaque);
+    private double calcularValorRestante(final int qtdeSaques) {
+        for (int idxSaque = 0; idxSaque < qtdeSaques; idxSaque++) {
+            efetuarSaque(qtdeSaques, idxSaque);
+            efetuarReinvestimento();
+        }
+        double valRestate = 0;
+        for (final Aporte aporte : aportes) {
+            valRestate += aporte.getValorRestante();
+        }
+        return valRestate;
     }
 
     private double calcularValorInvestido() {
@@ -166,30 +162,49 @@ public class CalculadoraInvestimento {
         return val;
     }
 
-    private int calcularQtdeMaxSaques() {
-        final double indiceAplicacaoMes = calcularIndiceMensal(indiceAplicacao);
-        final double indiceInflacaoMes = calcularIndiceMensal(indiceInflacao);
-        final double indiceReaplicacaoMes = calcularIndiceMensal(indiceReaplicacao);
-        final int idxSaqueInicial = qtdeAportes;
+    private int calcularQtdeMaxSaques(final double indiceAplicacaoMes, final double indiceInflacaoMes) {
+        int qtdeMaxSaques = qtdeSaques;
+        double valRestante = -1;
+        while (true) {
+            inicializarAportes(indiceAplicacaoMes);
+            inicializarSaques(qtdeMaxSaques, indiceInflacaoMes);
 
-        final double valorFinal = valorAporte * calcularIndiceAcumulado(qtdeAportes, indiceAplicacaoMes);
-        final double valorSaqueFuturo = valorSaque * pow((1 + indiceInflacaoMes), idxSaqueInicial);
-        return calcularQtdeMaxSaques(valorFinal, valorSaqueFuturo, indiceInflacaoMes, indiceReaplicacaoMes, 0);
+            valRestante = calcularValorRestante(qtdeMaxSaques);
+            if (valRestante <= 0) {
+                return qtdeMaxSaques;
+            }
+            incrementarSaques(1, indiceInflacaoMes);
+            qtdeMaxSaques++;
+        }
     }
 
-    private int calcularQtdeMaxSaques(double valorFinal, double valorSaque, final double indiceInflacao, final double indiceReaplicacao,
-                    int numSaque) {
-        valorFinal -= valorSaque;
-        numSaque++;
-        if (valorFinal < 0) {
-            return --numSaque;
-        } else if (valorFinal == 0 || numSaque >= TEMPO_MAX) {
-            return numSaque;
-        }
+    private void efetuarSaque(final int qtdeSaques, final int idxSaque) {
+        double valSaque = 0;
+        double valAporte = 0;
+        int idxAporte = 0;
+        final int idxUltimoSaque = qtdeSaques - 1;
+        final int idxUltimoAporte = qtdeAportes - 1;
+        Aporte aporte = null;
 
-        valorSaque *= (1 + indiceInflacao);
-        valorFinal *= (1 + indiceReaplicacao);
-        return calcularQtdeMaxSaques(valorFinal, valorSaque, indiceInflacao, indiceReaplicacao, numSaque);
+        if (idxSaque > idxUltimoSaque) {
+            return;
+        }
+        valSaque = saques.get(idxSaque);
+        while (true) {
+            if (idxAporte > idxUltimoAporte) {
+                break;
+            }
+            aporte = aportes.get(idxAporte);
+            valAporte += aporte.getValorRestante();
+            if (valSaque > valAporte) {
+                aporte.setValorRestante(0d);
+                idxAporte++;
+            } else {
+                aporte.setValorRestante(valAporte - valSaque);
+                return;
+            }
+
+        }
     }
 
     private String formatPercentualIndex(final double index) {
@@ -212,6 +227,14 @@ public class CalculadoraInvestimento {
         }
     }
 
+    private void incrementarSaques(int qtdeSaques, final double idxInflacaoMes) {
+        final int qtdeSaquesAnterior = saques.size();
+        qtdeSaques = qtdeSaques + qtdeSaquesAnterior - 1;
+        for (int i = qtdeSaquesAnterior; i <= qtdeSaques; i++) {
+            saques.add(valorSaque * pow(1 + idxInflacaoMes, i));
+        }
+    }
+
     private void inicializarSaques(final double idxInflacaoMes) {
         inicializarSaques(qtdeSaques, idxInflacaoMes);
     }
@@ -223,10 +246,6 @@ public class CalculadoraInvestimento {
         for (int i = idxPrimeiroSaque; i <= idxUltimoSaque; i++) {
             saques.add(valorSaque * pow(1 + idxInflacaoMes, i));
         }
-    }
-
-    private String formatarAnos(final int qtdeMeses) {
-        return qtdeMeses / 12 + " anos e " + qtdeMeses % 12 + " meses";
     }
 
 }
