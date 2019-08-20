@@ -174,12 +174,13 @@ public class CalculadoraInvestimento {
 
         final double valorFinal = valorAporte * calcularIndiceAcumulado(qtdeAportes, indiceAplicacaoMes);
         final double valorSaqueFuturo = valorSaque * pow((1 + indiceInflacaoMes), idxSaqueInicial);
-        return calcularQtdeMaxSaques(valorFinal, valorSaqueFuturo, indiceInflacaoMes, indiceReaplicacaoMes, 0);
+        final double coeficienteLucro = calcularCoeficienteLucro(indiceAplicacaoMes, qtdeAportes);
+        return calcularQtdeMaxSaques(valorFinal, valorSaqueFuturo, 0, indiceInflacaoMes, indiceReaplicacaoMes, coeficienteLucro, 0);
     }
 
-    private int calcularQtdeMaxSaques(double valorFinal, double valorSaque, final double indiceInflacao, final double indiceReaplicacao,
-                    int numSaque) {
-        valorFinal -= valorSaque;
+    private int calcularQtdeMaxSaques(double valorFinal, double valorSaque, double lucro, final double indiceInflacao,
+                    final double indiceReaplicacao, final double coeficienteLucro, int numSaque) {
+        valorFinal -= (valorSaque + lucro);
         numSaque++;
         if (valorFinal < 0) {
             return --numSaque;
@@ -187,9 +188,11 @@ public class CalculadoraInvestimento {
             return numSaque;
         }
 
+        lucro = valorSaque * coeficienteLucro * indiceIR;
         valorSaque *= (1 + indiceInflacao);
         valorFinal *= (1 + indiceReaplicacao);
-        return calcularQtdeMaxSaques(valorFinal, valorSaque, indiceInflacao, indiceReaplicacao, numSaque);
+
+        return calcularQtdeMaxSaques(valorFinal, valorSaque, lucro, indiceInflacao, indiceReaplicacao, coeficienteLucro, numSaque);
     }
 
     private String formatPercentualIndex(final double index) {
@@ -213,10 +216,6 @@ public class CalculadoraInvestimento {
     }
 
     private void inicializarSaques(final double idxInflacaoMes) {
-        inicializarSaques(qtdeSaques, idxInflacaoMes);
-    }
-
-    private void inicializarSaques(final int qtdeSaques, final double idxInflacaoMes) {
         saques.clear();
         final int idxPrimeiroSaque = qtdeAportes;
         final int idxUltimoSaque = idxPrimeiroSaque + qtdeSaques - 1;
@@ -227,6 +226,19 @@ public class CalculadoraInvestimento {
 
     private String formatarAnos(final int qtdeMeses) {
         return qtdeMeses / 12 + " anos e " + qtdeMeses % 12 + " meses";
+    }
+
+    private double calcularCoeficienteLucro(final double indiceRendimento, final int qdteAportes) {
+        return calcularCoeficienteLucro(0, indiceRendimento, qdteAportes - 1);
+    }
+
+    private double calcularCoeficienteLucro(double indiceAcumulado, final double indiceRendimento, int numAportes) {
+        if (numAportes < 0) {
+            return indiceAcumulado;
+        }
+        indiceAcumulado += pow((1 + indiceRendimento), numAportes) - 1;
+        numAportes++;
+        return calcularCoeficienteLucro(indiceAcumulado, indiceRendimento, numAportes);
     }
 
 }
