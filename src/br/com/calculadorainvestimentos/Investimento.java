@@ -2,9 +2,12 @@ package br.com.calculadorainvestimentos;
 
 public class Investimento {
     private double aliquotaAplicacao;
+    private double aliquotaAplicacaoMes;
     private double aliquotaReaplicacao;
+    private double aliquotaReaplicacaoMes;
     private double aliquotaIR;
     private double aliquotaInflacao;
+
     private int qtdeAportes;
     private int qtdeSaques;
     private double valorAporte;
@@ -73,4 +76,21 @@ public class Investimento {
     public void setValorSaque(final double valorSaque) {
         this.valorSaque = valorSaque;
     }
+
+    public double getAliquotaAplicacaoMes() {
+        return aliquotaAplicacaoMes;
+    }
+
+    public void setAliquotaAplicacaoMes(final double aliquotaAplicacaoMes) {
+        this.aliquotaAplicacaoMes = aliquotaAplicacaoMes;
+    }
+
+    public double getAliquotaReaplicacaoMes() {
+        return aliquotaReaplicacaoMes;
+    }
+
+    public void setAliquotaReaplicacaoMes(final double aliquotaReaplicacaoMes) {
+        this.aliquotaReaplicacaoMes = aliquotaReaplicacaoMes;
+    }
+
 }

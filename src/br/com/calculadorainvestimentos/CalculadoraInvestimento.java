@@ -2,12 +2,8 @@ package br.com.calculadorainvestimentos;
 
 import static java.lang.Math.pow;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CalculadoraInvestimento {
 
-    private final List<Aporte> aportes = new ArrayList<>();
     private double indiceAplicacao;
     private double indiceInflacao;
 
@@ -15,7 +11,6 @@ public class CalculadoraInvestimento {
     private double indiceReaplicacao;
     private int qtdeAportes;
     private int qtdeSaques;
-    private final List<Double> saques = new ArrayList<>();
     private double valorAporte;
     private double valorSaque;
     private static final int TEMPO_MAXIMO = 1000;
@@ -28,9 +23,14 @@ public class CalculadoraInvestimento {
     private double valorInvestido;
     private double valorReal;
     private double valorInvestidoComInflacao;
+    private double valorPrimeiroSaque;
+    private double valorUltimoSaque;
 
     private double indiceGanhoFinal;
     private double indiceGanhoReal;
+    private double indiceInflacaoAcumulada;
+
+    private double indiceInflacaoAcumuladaMes;
 
     private int qtdeMaxSaques;
     private double valorRestante;
@@ -59,6 +59,17 @@ public class CalculadoraInvestimento {
 
         indiceGanhoFinal = (valorFinal - valorInvestido) / valorInvestido;
         indiceGanhoReal = (valorReal - valorInvestido) / valorInvestido;
+
+        if (valorInvestidoComInflacao != 0d) {
+            indiceInflacaoAcumulada = (valorInvestido - valorInvestidoComInflacao) / valorInvestidoComInflacao;
+        } else {
+            indiceInflacaoAcumulada = 0;
+        }
+        indiceInflacaoAcumuladaMes = calcularIndiceEquivalente(indiceInflacaoAcumulada, qtdeAportes);
+
+        valorPrimeiroSaque = valorSaque * pow(1 + indiceInflacaoMes, qtdeAportes);
+        valorUltimoSaque = valorSaque * pow(1 + indiceInflacaoMes, qtdeAportes + qtdeSaques - 1);
+
     }
 
     public FluxoInvestimento calcular(final Investimento investimento) {
@@ -66,17 +77,22 @@ public class CalculadoraInvestimento {
         calcularIndicesMensaisEValores();
         calcularQtdeMaxSaquesEValorRestante();
 
-        final double idxInflAcumul = (valorFinal - valorReal) / valorReal;
+        final ProjecaoInvestimento projInvest = new ProjecaoInvestimento();
+        projInvest.setAliquotaGanhoFinal(indiceGanhoFinal * 100);
+        projInvest.setAliquotaGanhoReal(indiceGanhoReal * 100);
+        projInvest.setAliquotaInflacaoAcumulada(indiceInflacaoAcumulada * 100);
+        projInvest.setAliquotaInflacaoAcumuladaMes(indiceInflacaoAcumuladaMes * 100);
+        projInvest.setAliquotaInflacaoMes(indiceInflacaoMes * 100);
+        projInvest.setQtdeAportes(qtdeAportes);
+        projInvest.setValorFinal(valorFinal);
+        projInvest.setValorInvestido(valorInvestido);
+        projInvest.setValorInvestidoComInflacao(valorInvestidoComInflacao);
+        projInvest.setValorReal(valorReal);
+        projInvest.setAliquotaAplicacaoMes(indiceAplicacaoMes * 100);
 
-        final double idxInflAcumulMes = 1d - Math.pow(1 - idxInflAcumul, 1d / qtdeAportes);
+        final ProjecaoSaque projSaque = new ProjecaoSaque();
 
-        final double valPrimeiroSaque = valorSaque * pow(1 + indiceInflacaoMes, qtdeAportes);
-        final double valUltimoSaque = valorSaque * pow(1 + indiceInflacaoMes, qtdeAportes + qtdeSaques - 1);
-
-        inicializarAportes(indiceAplicacaoMes);
-        inicializarSaques(indiceInflacaoMes);
-
-        return null;
+        return new FluxoInvestimento(projInvest, projSaque);
     }
 
     private double calcularIndiceAcumulado(final int frequencia, final double fator) {
@@ -111,7 +127,6 @@ public class CalculadoraInvestimento {
     }
 
     private void calcularQtdeMaxSaquesEValorRestante() {
-        // final double indiceInflacaoMes = calcularIndiceMensal(indiceInflacao);
         final double indiceReaplicacaoMes = calcularIndiceMensal(indiceReaplicacao);
         final int idxSaqueInicial = qtdeAportes;
 
@@ -140,38 +155,7 @@ public class CalculadoraInvestimento {
         calcularQtdeMaxSaques(valorFinal, valorSaque, indiceInflacao, indiceReaplicacao, indiceLucro, numSaque);
     }
 
-    private void inicializarAportes(final double idxApliMes) {
-        aportes.clear();
-
-        Aporte aporte = null;
-        double valor = 0;
-        for (int posicao = qtdeAportes - 1; posicao >= 0; posicao--) {
-            valor = valorAporte * pow(1 + idxApliMes, posicao);
-            aporte = new Aporte();
-            aporte.setValorInicial(valorAporte);
-            aporte.setPosicao(posicao);
-            aporte.setValor(valor);
-            aporte.setValorRestante(valor);
-            aportes.add(aporte);
-        }
-    }
-
-    private void inicializarSaques(final double idxInflacaoMes) {
-        saques.clear();
-        final int idxPrimeiroSaque = qtdeAportes;
-        final int idxUltimoSaque = idxPrimeiroSaque + qtdeSaques - 1;
-        for (int i = idxPrimeiroSaque; i <= idxUltimoSaque; i++) {
-            saques.add(valorSaque * pow(1 + idxInflacaoMes, i));
-        }
-    }
-
-    private String formatarAnos(final int qtdeMeses) {
-        return qtdeMeses / 12 + " anos e " + qtdeMeses % 12 + " meses";
-    }
-
     private double calcularIndiceLucroMedio() {
-        final double valorInvestido = calcularValorInvestido();
-        final double valorFinal = calcularValorFinal();
         final double indiceLucro = (valorFinal / valorInvestido - 1);
         return calcularIndiceEquivalente(indiceLucro, qtdeAportes);
     }

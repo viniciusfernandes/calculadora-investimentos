@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 
 public class Main {
     private static final String MARGEM = "---------------------------------------";
+    private static final DecimalFormat DF = new DecimalFormat("#.###");
 
     public static void main(final String[] args) {
         final Investimento investimento = new Investimento();
@@ -26,64 +27,59 @@ public class Main {
         print(fluxo.getProjecaoSaque());
     }
 
-    private static void print(final ProjecaoInvestimento invest) {}
+    private static void print(final ProjecaoInvestimento projecaoInvest) {
+        out.println("\n\nInvestimentos\n" + MARGEM);
+        out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestido()));
+        out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorFinal()));
+        out.println("Rend. Mensal   : " + formatarAliquota(projecaoInvest.getAliquotaAplicacaoMes()));
+        out.println("Tempo Invest.  : " + formatarTempo(projecaoInvest.getQtdeAportes()));
 
-    private static void print(final ProjecaoSaque saque) {}
+        out.println("Val. Real      : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorReal()));
+        out.println("Val. c/ Infl.  : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestidoComInflacao()));
+        out.println("Inflacao Mensal: " + formatarAliquota(projecaoInvest.getAliquotaInflacaoMes()));
+
+        out.println("Infl. Acumul   : " + formatarAliquota(projecaoInvest.getAliquotaInflacaoAcumulada()));
+        out.println("Infl. Acum. Mes: " + formatarAliquota(projecaoInvest.getAliquotaInflacaoAcumuladaMes()));
+
+        out.println("Rend. Final    : " + formatarAliquota(projecaoInvest.getAliquotaGanhoFinal()));
+        out.println("Rend. Real     : " + formatarAliquota(projecaoInvest.getAliquotaGanhoReal()));
+    }
+
+    private static void print(final ProjecaoSaque saque) {
+        /*
+         * out.println("\n\nSaques\n" + MARGEM); out.println("Primeiro Saque : " +
+         * NumberFormat.getCurrencyInstance().format(valPrimeiroSaque));
+         * out.println("Último Saque   : " +
+         * NumberFormat.getCurrencyInstance().format(valUltimoSaque));
+         * out.println("Reinvest. Mens.: " + formatarAliquota(indiceReaplicacao));
+         * 
+         * out.println("Val. Restante  : " +
+         * NumberFormat.getCurrencyInstance().format(aporteRestante.getValor()) + " apos " +
+         * aporteRestante.getQtdeSaques() + " saque(s)");
+         * 
+         * out.println("Qtde. Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAXIMO ? "SEM LIMITES" :
+         * qtdeMaxSaques)); out.println("Tempo Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAXIMO ?
+         * "SEM LIMITES" : formatarTempo(qtdeMaxSaques)));
+         * 
+         * out.println(MARGEM);
+         */
+    }
 
     private static void print(final Investimento invest) {
-
-        final String header = MARGEM + "\nValores Iniciais\n" + MARGEM;
-        final String footer = "\n\nInvestimentos\n" + MARGEM;
-        final String subfooter = "\n\nSaques\n" + MARGEM;
-
-        final AporteRestante aporteRestante = calcularAporteRestante();
-        final int qtdeMaxSaques = calcularQtdeMaxSaques();
-
-        out.println(header);
-
+        out.println(MARGEM + "\nValores Iniciais\n" + MARGEM);
         out.println("Aporte Mensal  : " + NumberFormat.getCurrencyInstance().format(invest.getValorAporte()));
         out.println("Saque Mensal   : " + NumberFormat.getCurrencyInstance().format(invest.getValorSaque()));
-
         out.println("Qtde Aportes   : " + invest.getQtdeAportes());
         out.println("Qtde Saques    : " + invest.getQtdeSaques());
-
-        out.println("Rend. Anual    : " + invest.getAliquotaAplicacao() + "%");
-        out.println("Rend. Mensal   : " + formatarPercentual(idxApliMes));
-
-        out.println("Inflacao Anual : " + invest.getAliquotaInflacao() + "%");
-        out.println("Inflacao Mensal: " + formatarPercentual(idxInflMes));
-
-        out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(valorInvestido));
-
-        out.println(MARGEM);
-
-        out.println(footer);
-        out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(valorFinal));
-        out.println("Tempo Invest.  : " + formatarAnos(qtdeAportes));
-
-        out.println("Val. Real      : " + NumberFormat.getCurrencyInstance().format(valorReal));
-        out.println("Inflacao Incid : " + NumberFormat.getCurrencyInstance().format(valorInflacaoIncidente));
-        out.println("Inflacao Acumul: " + formatarPercentual(idxInflAcumul));
-        out.println("Inflacao Mensal: " + formatarPercentual(idxInflAcumulMes));
-
-        out.println("Rend. Final    : " + formatarPercentual(indiceGanhoFinal));
-        out.println("Rend. Real     : " + formatarPercentual(indiceGanhoReal));
-
-        out.println(subfooter);
-        out.println("Primeiro Saque : " + NumberFormat.getCurrencyInstance().format(valPrimeiroSaque));
-        out.println("Último Saque   : " + NumberFormat.getCurrencyInstance().format(valUltimoSaque));
-        out.println("Reinvest. Mens.: " + formatarPercentual(indiceReaplicacao));
-
-        out.println("Val. Restante  : " + NumberFormat.getCurrencyInstance().format(aporteRestante.getValor()) + " apos "
-            + aporteRestante.getQtdeSaques() + " saque(s)");
-
-        out.println("Qtde. Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAXIMO ? "SEM LIMITES" : qtdeMaxSaques));
-        out.println("Tempo Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAXIMO ? "SEM LIMITES" : formatarAnos(qtdeMaxSaques)));
-
+        out.println("Rend. Anual    : " + formatarAliquota(invest.getAliquotaAplicacao()));
         out.println(MARGEM);
     }
 
-    private String formatarPercentual(final double indice) {
-        return (new DecimalFormat("#.###").format(indice * 100) + "%").replace(".", ",");
+    private static String formatarAliquota(final double aliquota) {
+        return (DF.format(aliquota) + "%").replace(".", ",");
+    }
+
+    private static String formatarTempo(final int qtdeMeses) {
+        return qtdeMeses / 12 + " anos e " + qtdeMeses % 12 + " meses";
     }
 }
