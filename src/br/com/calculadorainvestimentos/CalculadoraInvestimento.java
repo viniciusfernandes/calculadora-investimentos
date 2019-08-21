@@ -13,11 +13,13 @@ public class CalculadoraInvestimento {
     private int qtdeSaques;
     private double valorAporte;
     private double valorSaque;
-    private static final int TEMPO_MAXIMO = 1000;
+    public static final int QTDE_MAX_SAQUES = 12 * 100;
 
     private double indiceAplicacaoMes;
+    private double indiceReaplicacaoMes;
+
     private double indiceInflacaoMes;
-    private double idxReal;
+    private double indiceReal;
 
     private double valorFinal;
     private double valorInvestido;
@@ -50,11 +52,12 @@ public class CalculadoraInvestimento {
     private void calcularIndicesMensaisEValores() {
         indiceAplicacaoMes = calcularIndiceMensal(indiceAplicacao);
         indiceInflacaoMes = calcularIndiceMensal(indiceInflacao);
-        idxReal = calcularIndiceReal(indiceAplicacaoMes, indiceInflacaoMes);
+        indiceReal = calcularIndiceReal(indiceAplicacaoMes, indiceInflacaoMes);
+        indiceReaplicacaoMes = calcularIndiceMensal(indiceReaplicacao);
 
         valorFinal = calcularValorFinal();
         valorInvestido = calcularValorInvestido();
-        valorReal = valorAporte * calcularIndiceAcumulado(qtdeAportes, idxReal);
+        valorReal = valorAporte * calcularIndiceAcumulado(qtdeAportes, indiceReal);
         valorInvestidoComInflacao = valorAporte * calcularIndiceAcumulado(qtdeAportes, -indiceInflacaoMes);
 
         indiceGanhoFinal = (valorFinal - valorInvestido) / valorInvestido;
@@ -89,8 +92,14 @@ public class CalculadoraInvestimento {
         projInvest.setValorInvestidoComInflacao(valorInvestidoComInflacao);
         projInvest.setValorReal(valorReal);
         projInvest.setAliquotaAplicacaoMes(indiceAplicacaoMes * 100);
+        projInvest.setAliquotaReal(indiceReal * 100);
 
         final ProjecaoSaque projSaque = new ProjecaoSaque();
+        projSaque.setQtdeMaxSaques(qtdeMaxSaques);
+        projSaque.setValorPrimeiroSaque(valorPrimeiroSaque);
+        projSaque.setValorRestante(valorRestante);
+        projSaque.setValorUltimoSaque(valorUltimoSaque);
+        projSaque.setAliquotaReaplicacaoMes(indiceReaplicacaoMes * 100);
 
         return new FluxoInvestimento(projInvest, projSaque);
     }
@@ -127,7 +136,6 @@ public class CalculadoraInvestimento {
     }
 
     private void calcularQtdeMaxSaquesEValorRestante() {
-        final double indiceReaplicacaoMes = calcularIndiceMensal(indiceReaplicacao);
         final int idxSaqueInicial = qtdeAportes;
 
         final double valorSaqueFuturo = valorSaque * pow((1 + indiceInflacaoMes), idxSaqueInicial);
@@ -145,7 +153,7 @@ public class CalculadoraInvestimento {
         if (valorFinal < 0) {
             qtdeMaxSaques = --numSaque;
             return;
-        } else if (valorFinal == 0 || numSaque >= TEMPO_MAXIMO) {
+        } else if (valorFinal == 0 || numSaque >= QTDE_MAX_SAQUES) {
             return;
         }
 

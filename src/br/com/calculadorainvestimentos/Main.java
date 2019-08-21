@@ -29,40 +29,37 @@ public class Main {
 
     private static void print(final ProjecaoInvestimento projecaoInvest) {
         out.println("\n\nInvestimentos\n" + MARGEM);
-        out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestido()));
-        out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorFinal()));
-        out.println("Rend. Mensal   : " + formatarAliquota(projecaoInvest.getAliquotaAplicacaoMes()));
         out.println("Tempo Invest.  : " + formatarTempo(projecaoInvest.getQtdeAportes()));
 
+        out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestido()));
+        out.println("Val. Depreci.  : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestidoComInflacao()));
+        out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorFinal()));
         out.println("Val. Real      : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorReal()));
-        out.println("Val. c/ Infl.  : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestidoComInflacao()));
-        out.println("Inflacao Mensal: " + formatarAliquota(projecaoInvest.getAliquotaInflacaoMes()));
 
-        out.println("Infl. Acumul   : " + formatarAliquota(projecaoInvest.getAliquotaInflacaoAcumulada()));
+        out.println("Rend. Mensal   : " + formatarAliquota(projecaoInvest.getAliquotaAplicacaoMes()));
+        out.println("Rend. Real     : " + formatarAliquota(projecaoInvest.getAliquotaReal()));
+
+        out.println("Infl. Mes      : " + formatarAliquota(projecaoInvest.getAliquotaInflacaoMes()));
+        out.println("Infl. Acum.    : " + formatarAliquota(projecaoInvest.getAliquotaInflacaoAcumulada()));
         out.println("Infl. Acum. Mes: " + formatarAliquota(projecaoInvest.getAliquotaInflacaoAcumuladaMes()));
 
         out.println("Rend. Final    : " + formatarAliquota(projecaoInvest.getAliquotaGanhoFinal()));
         out.println("Rend. Real     : " + formatarAliquota(projecaoInvest.getAliquotaGanhoReal()));
     }
 
-    private static void print(final ProjecaoSaque saque) {
-        /*
-         * out.println("\n\nSaques\n" + MARGEM); out.println("Primeiro Saque : " +
-         * NumberFormat.getCurrencyInstance().format(valPrimeiroSaque));
-         * out.println("Último Saque   : " +
-         * NumberFormat.getCurrencyInstance().format(valUltimoSaque));
-         * out.println("Reinvest. Mens.: " + formatarAliquota(indiceReaplicacao));
-         * 
-         * out.println("Val. Restante  : " +
-         * NumberFormat.getCurrencyInstance().format(aporteRestante.getValor()) + " apos " +
-         * aporteRestante.getQtdeSaques() + " saque(s)");
-         * 
-         * out.println("Qtde. Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAXIMO ? "SEM LIMITES" :
-         * qtdeMaxSaques)); out.println("Tempo Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAXIMO ?
-         * "SEM LIMITES" : formatarTempo(qtdeMaxSaques)));
-         * 
-         * out.println(MARGEM);
-         */
+    private static void print(final ProjecaoSaque projSaque) {
+
+        out.println("\n\nSaques\n" + MARGEM);
+        out.println("Primeiro Saque : " + NumberFormat.getCurrencyInstance().format(projSaque.getValorPrimeiroSaque()));
+        out.println("Último Saque   : " + NumberFormat.getCurrencyInstance().format(projSaque.getValorUltimoSaque()));
+        out.println("Reaplic. Mes   : " + formatarAliquota(projSaque.getAliquotaReaplicacaoMes()));
+        out.println("Val. Restante  : " + NumberFormat.getCurrencyInstance().format(projSaque.getValorRestante()));
+
+        out.println("Qtde. Max. Saq.: "
+            + (projSaque.getQtdeMaxSaques() >= CalculadoraInvestimento.QTDE_MAX_SAQUES ? "SEM LIMITES" : projSaque.getQtdeMaxSaques()));
+        out.println("Tempo Max. Saq.: " + (projSaque.getQtdeMaxSaques() >= CalculadoraInvestimento.QTDE_MAX_SAQUES ? "SEM LIMITES"
+                        : formatarTempo(projSaque.getQtdeMaxSaques())));
+        out.println(MARGEM);
     }
 
     private static void print(final Investimento invest) {
@@ -72,6 +69,7 @@ public class Main {
         out.println("Qtde Aportes   : " + invest.getQtdeAportes());
         out.println("Qtde Saques    : " + invest.getQtdeSaques());
         out.println("Rend. Anual    : " + formatarAliquota(invest.getAliquotaAplicacao()));
+        out.println("Reinvestimento : " + formatarAliquota(invest.getAliquotaReaplicacao()));
         out.println(MARGEM);
     }
 

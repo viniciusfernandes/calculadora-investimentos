@@ -12,6 +12,7 @@ public class ProjecaoInvestimento {
     private double aliquotaGanhoFinal;
     private double aliquotaGanhoReal;
     private double aliquotaAplicacaoMes;
+    private double aliquotaReal;
 
     public int getQtdeAportes() {
         return qtdeAportes;
@@ -99,6 +100,14 @@ public class ProjecaoInvestimento {
 
     public void setAliquotaAplicacaoMes(final double aliquotaAplicacaoMes) {
         this.aliquotaAplicacaoMes = aliquotaAplicacaoMes;
+    }
+
+    public double getAliquotaReal() {
+        return aliquotaReal;
+    }
+
+    public void setAliquotaReal(final double aliquotaReal) {
+        this.aliquotaReal = aliquotaReal;
     }
 
 }
