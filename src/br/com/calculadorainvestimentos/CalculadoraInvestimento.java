@@ -21,7 +21,7 @@ public class CalculadoraInvestimento {
     private final List<Double> saques = new ArrayList<>();
     private final double valorAporte;
     private final double valorSaque;
-    private final int TEMPO_MAX = 1000;
+    private final static int TEMPO_MAXIMO = 1000;
 
     public CalculadoraInvestimento(
                     final double aliquotaAplicacao, final double aliquotaReaplicacao, final double aliquotaIR,
@@ -43,7 +43,7 @@ public class CalculadoraInvestimento {
         final double idxInflMes = calcularIndiceMensal(indiceInflacao);
         final double idxReal = calcularIndiceReal(idxApliMes, idxInflMes);
 
-        final double valorFinal = valorAporte * calcularIndiceAcumulado(qtdeAportes, idxApliMes);
+        final double valorFinal = calcularValorFinal();
         final double valorReal = valorAporte * calcularIndiceAcumulado(qtdeAportes, idxReal);
         final double valorInflacaoIncidente = valorAporte * calcularIndiceAcumulado(qtdeAportes, -idxInflMes);
         final double idxInflAcumul = (valorFinal - valorReal) / valorReal;
@@ -108,8 +108,8 @@ public class CalculadoraInvestimento {
         out.println("Val. Restante  : " + NumberFormat.getCurrencyInstance().format(aporteRestante.getValor()) + " apos "
             + aporteRestante.getQtdeSaques() + " saque(s)");
 
-        out.println("Qtde. Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAX ? "SEM LIMITES" : qtdeMaxSaques));
-        out.println("Tempo Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAX ? "SEM LIMITES" : formatarAnos(qtdeMaxSaques)));
+        out.println("Qtde. Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAXIMO ? "SEM LIMITES" : qtdeMaxSaques));
+        out.println("Tempo Max. Saq.: " + (qtdeMaxSaques >= TEMPO_MAXIMO ? "SEM LIMITES" : formatarAnos(qtdeMaxSaques)));
 
         out.println(margem);
     }
@@ -125,7 +125,11 @@ public class CalculadoraInvestimento {
     }
 
     private double calcularIndiceMensal(final double indice) {
-        return Math.pow(1 + indice, 1d / 12d) - 1;
+        return calcularIndiceEquivalente(indice, 12);
+    }
+
+    private double calcularIndiceEquivalente(final double indice, final int periodo) {
+        return Math.pow(1 + indice, 1d / periodo) - 1;
     }
 
     private double calcularIndiceReal(final double indiceRendimento, final double indiceInflacao) {
@@ -174,25 +178,25 @@ public class CalculadoraInvestimento {
 
         final double valorFinal = valorAporte * calcularIndiceAcumulado(qtdeAportes, indiceAplicacaoMes);
         final double valorSaqueFuturo = valorSaque * pow((1 + indiceInflacaoMes), idxSaqueInicial);
-        final double coeficienteLucro = calcularCoeficienteLucro(indiceAplicacaoMes, qtdeAportes);
-        return calcularQtdeMaxSaques(valorFinal, valorSaqueFuturo, 0, indiceInflacaoMes, indiceReaplicacaoMes, coeficienteLucro, 0);
+        final double indiceLucro = calcularIndiceLucroMedio();
+        return calcularQtdeMaxSaques(valorFinal, valorSaqueFuturo, indiceInflacaoMes, indiceReaplicacaoMes, indiceLucro, 0);
     }
 
-    private int calcularQtdeMaxSaques(double valorFinal, double valorSaque, double lucro, final double indiceInflacao,
-                    final double indiceReaplicacao, final double coeficienteLucro, int numSaque) {
-        valorFinal -= (valorSaque + lucro);
+    private int calcularQtdeMaxSaques(double valorFinal, double valorSaque, final double indiceInflacao, final double indiceReaplicacao,
+                    final double indiceLucro, int numSaque) {
+        // Subtranido o valor do IR incidente no saque.
+        valorFinal -= (valorSaque + valorSaque * indiceLucro * indiceIR);
         numSaque++;
         if (valorFinal < 0) {
             return --numSaque;
-        } else if (valorFinal == 0 || numSaque >= TEMPO_MAX) {
+        } else if (valorFinal == 0 || numSaque >= TEMPO_MAXIMO) {
             return numSaque;
         }
 
-        lucro = valorSaque * coeficienteLucro * indiceIR;
         valorSaque *= (1 + indiceInflacao);
         valorFinal *= (1 + indiceReaplicacao);
 
-        return calcularQtdeMaxSaques(valorFinal, valorSaque, lucro, indiceInflacao, indiceReaplicacao, coeficienteLucro, numSaque);
+        return calcularQtdeMaxSaques(valorFinal, valorSaque, indiceInflacao, indiceReaplicacao, indiceLucro, numSaque);
     }
 
     private String formatPercentualIndex(final double index) {
@@ -228,17 +232,15 @@ public class CalculadoraInvestimento {
         return qtdeMeses / 12 + " anos e " + qtdeMeses % 12 + " meses";
     }
 
-    private double calcularCoeficienteLucro(final double indiceRendimento, final int qdteAportes) {
-        return calcularCoeficienteLucro(0, indiceRendimento, qdteAportes - 1);
+    private double calcularIndiceLucroMedio() {
+        final double valorInvestido = calcularValorInvestido();
+        final double valorFinal = calcularValorFinal();
+        final double indiceLucro = (valorFinal / valorInvestido - 1);
+        return calcularIndiceEquivalente(indiceLucro, qtdeAportes);
     }
 
-    private double calcularCoeficienteLucro(double indiceAcumulado, final double indiceRendimento, int numAportes) {
-        if (numAportes < 0) {
-            return indiceAcumulado;
-        }
-        indiceAcumulado += pow((1 + indiceRendimento), numAportes) - 1;
-        numAportes++;
-        return calcularCoeficienteLucro(indiceAcumulado, indiceRendimento, numAportes);
+    private double calcularValorFinal() {
+        final double idxAplicMes = calcularIndiceMensal(indiceAplicacao);
+        return valorAporte * calcularIndiceAcumulado(qtdeAportes, idxAplicMes);
     }
-
 }
