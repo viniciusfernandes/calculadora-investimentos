@@ -20,6 +20,7 @@ public class CalculadoraInvestimento {
 	private double indiceInflacaoMes;
 	private double indiceReal;
 
+	private double valorInicial;
 	private double valorFinal;
 	private double valorInvestido;
 	private double valorReal;
@@ -44,6 +45,7 @@ public class CalculadoraInvestimento {
 		qtdeAportes = investimento.getQtdeAportes();
 		valorAporte = investimento.getValorAporte();
 		valorSaque = investimento.getValorSaque();
+		valorInicial = investimento.getValorInicial();
 	}
 
 	private void calcularIndicesMensaisEValores() {
@@ -98,10 +100,10 @@ public class CalculadoraInvestimento {
 		return new FluxoInvestimento(projInvest, projSaque);
 	}
 
-	private double calcularIndiceAcumulado(final int frequencia, final double fator) {
+	private double calcularIndiceAcumulado(final int quantidade, final double fator) {
 		double indiceAcumulado = 0;
 
-		for (int i = 0; i < frequencia; i++) {
+		for (int i = 0; i < quantidade; i++) {
 			indiceAcumulado += pow(1 + fator, i);
 		}
 
@@ -166,6 +168,7 @@ public class CalculadoraInvestimento {
 
 	private double calcularValorFinal() {
 		final double idxAplicMes = calcularIndiceMensal(indiceAplicacao);
-		return valorAporte * calcularIndiceAcumulado(qtdeAportes, idxAplicMes);
+		return valorInicial * pow(1 + idxAplicMes, qtdeAportes - 1)
+				+ valorAporte * calcularIndiceAcumulado(qtdeAportes, idxAplicMes);
 	}
 }

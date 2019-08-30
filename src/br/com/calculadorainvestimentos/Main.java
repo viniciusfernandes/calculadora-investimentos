@@ -14,26 +14,30 @@ import java.util.Scanner;
 
 public class Main {
 	private static final String MARGEM = "---------------------------------------";
+	private static final String ESPACO = "\n+\n+\n+\n+\n+\n+\n+\n+\n+\n+\n";
 	private static final DecimalFormat DF = new DecimalFormat("#.###");
 	private static final String pathDir = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 	private static final File dir = new File(pathDir).getParentFile();
-	private static final File dadosInvestimento = new File(
-			dir.getAbsolutePath() + File.separator + "investimento.properties");
+	private static final File dadosInvestimento = new File(dir.getAbsolutePath() + File.separator + "investimento.txt");
 	private static boolean hasFile = false;
 	private static final Scanner scanner = new Scanner(System.in);
 	private static boolean isPrimeiraExecucao = true;
+	private static Properties props = null;
 
 	public static void main(final String[] args) {
 		gerarArquivoInvestimento();
 
 		System.out.println(MARGEM + MARGEM);
-		System.out.println("Preencha o arquivo: investimento.properties");
+		System.out.println("Preencha o arquivo: investimento.txt");
 		System.out.println(MARGEM + MARGEM);
 
 		String comando = "";
+		boolean leituraOk = true;
 		while (true) {
+			if (leituraOk) {
+				printInstrucaoInicial();
+			}
 
-			System.out.print("\nDigite \"s\" para gerar o fluxo de investimentos ou qualquer letra para sair: ");
 			comando = scanner.nextLine();
 			if (!"s".equalsIgnoreCase(comando)) {
 				scanner.close();
@@ -42,7 +46,20 @@ public class Main {
 				System.out.println(MARGEM);
 				return;
 			}
-			gerarFluxoInvestimento();
+			try {
+				gerarFluxoInvestimento();
+				leituraOk = true;
+			} catch (Exception e) {
+				System.out.println(ESPACO);
+				System.out.println(
+						"HOUVE UMA FALHA NA LEITURA DO ARQUIVO DE INVESTIMENTO.");
+				leituraOk = false;
+				dadosInvestimento.delete();
+				gerarArquivoInvestimento();
+
+				System.out.println("O arquivo foi gerado no mesmo diretorio. Preencha os valores novamente.");
+				printInstrucaoInicial();
+			}
 
 		}
 	}
@@ -106,55 +123,77 @@ public class Main {
 
 	private static void gerarArquivoInvestimento() {
 		for (File arq : dir.listFiles()) {
-			if (hasFile = arq.getName().equals("investimento.properties")) {
+			if (hasFile = arq.getName().equals("investimento.txt")) {
 				break;
 			}
 		}
 		if (!hasFile) {
 			try {
+				StringBuilder descricao = new StringBuilder();
+				descricao.append(
+						"# Eh a aliquota anual da aplicacao que se espera fazer no inicio dos investimentos.\r\n");
+				descricao.append("aliquotaAplicacao:10.0\r\n\n");
+
+				descricao.append(
+						"# Eh a aliquota anual da aplicacao que se espera fazer ao inicio dos saques, por exemplo,\r\n# ao termino de 20 anos de aplicacao com aliquotaAplicacao=10.0%, pretende-se direcionar \r\n# toda a quantia acumulada para um investimento mais conversador que renda 5%.\r\n");
+				descricao.append("aliquotaReaplicacao:6.0\r\n\n");
+
+				descricao.append("# Eh a aliquota media de Imposto de Renda sobre os saques efetuados.\r\n");
+				descricao.append("aliquotaIR:12.0\r\n\n");
+
+				descricao.append("# Eh a aliquota media da inflacao anual.\r\n");
+				descricao.append("aliquotaInflacao:4.5\r\n\n");
+
+				descricao.append(
+						"# Eh o numero de aportes que se deseja efetuar ate o inicio dos saques (inicio da aposentadoria).\r\n");
+				descricao.append("qtdeAportes:240\r\n\n");
+
+				descricao.append("# Eh o valor do montante que se possui no momento do primeiro aporte.\r\n");
+				descricao.append("valorInicial:100000\r\n\n");
+
+				descricao.append("# Eh o valor do aporte mensal que se deseja fazer.\r\n");
+				descricao.append("valorAporte:3000.0\r\n\n");
+
+				descricao.append("# Eh o valor do saque mensal que se deseja fazer durante toda a aposentadoria.\r\n");
+				descricao.append("valorSaque:4000.0\r\n");
 				BufferedWriter writer = new BufferedWriter(new FileWriter(dadosInvestimento));
-				writer.write("aliquotaAplicacao:10.0\r\n" + "aliquotaReaplicacao:6.0\r\n" + "aliquotaIR:12.0\r\n"
-						+ "aliquotaInflacao:4.5\r\n" + "qtdeAportes:240\r\n" + "valorAporte:5000.0\r\n"
-						+ "valorSaque:4000.0");
+				writer.write(descricao.toString());
 				writer.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println(MARGEM);
+				System.out.println(
+						"Falha na leitura/geracao do arquivo de investimentos. Delete o arquivo do diretorio para que seja gerado automaticamente.");
 			}
 		}
 	}
 
-	private static Investimento gerarInvetimento() {
-		Properties props = new Properties();
+	private static Investimento gerarInvetimento() throws Exception {
+		props = new Properties();
 		FileInputStream file;
-		try {
-			file = new FileInputStream(dadosInvestimento);
-			props.load(file);
-			file.close();
+		file = new FileInputStream(dadosInvestimento);
+		props.load(file);
+		file.close();
 
-			final Investimento investimento = new Investimento();
-			investimento.setAliquotaAplicacao(Double.parseDouble(props.getProperty("aliquotaAplicacao")));
-			investimento.setAliquotaInflacao(Double.parseDouble(props.getProperty("aliquotaReaplicacao")));
-			investimento.setAliquotaIR(Double.parseDouble(props.getProperty("aliquotaIR")));
-			investimento.setAliquotaReaplicacao(Double.parseDouble(props.getProperty("aliquotaInflacao")));
-			investimento.setQtdeAportes(Integer.parseInt(props.getProperty("qtdeAportes")));
-			investimento.setValorAporte(Double.parseDouble(props.getProperty("valorAporte")));
-			investimento.setValorSaque(Double.parseDouble(props.getProperty("valorSaque")));
+		final Investimento investimento = new Investimento();
+		investimento.setAliquotaAplicacao(parse("aliquotaAplicacao"));
+		investimento.setAliquotaInflacao(parse("aliquotaReaplicacao"));
+		investimento.setAliquotaIR(parse("aliquotaIR"));
+		investimento.setAliquotaReaplicacao(parse("aliquotaInflacao"));
+		investimento.setQtdeAportes(parse("qtdeAportes").intValue());
+		investimento.setValorAporte(parse("valorAporte"));
+		investimento.setValorInicial(parse("valorInicial"));
+		investimento.setValorSaque(parse("valorSaque"));
 
-			return investimento;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return investimento;
+
 	}
 
-	private static void gerarFluxoInvestimento() {
+	private static void gerarFluxoInvestimento() throws Exception {
 		final Investimento investimento = gerarInvetimento();
 		final FluxoInvestimento fluxo = new CalculadoraInvestimento().calcular(investimento);
 
 		if (!isPrimeiraExecucao) {
-			for (int i = 0; i < 10; i++) {
-				System.out.println("+");
-			}
+			System.out.println(ESPACO);
 		}
 
 		isPrimeiraExecucao = false;
@@ -165,4 +204,11 @@ public class Main {
 
 	}
 
+	private static Double parse(String property) {
+		return Double.parseDouble(props.getProperty(property));
+	}
+
+	public static void printInstrucaoInicial() {
+		System.out.print("\nDigite \"s\" para gerar o fluxo de investimentos ou qualquer letra para sair: ");
+	}
 }

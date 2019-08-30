@@ -9,6 +9,15 @@ public class Investimento {
 	private int qtdeAportes;
 	private double valorAporte;
 	private double valorSaque;
+	private double valorInicial;
+
+	public double getValorInicial() {
+		return valorInicial;
+	}
+
+	public void setValorInicial(double valorInicial) {
+		this.valorInicial = valorInicial;
+	}
 
 	public double getAliquotaAplicacao() {
 		return aliquotaAplicacao;
