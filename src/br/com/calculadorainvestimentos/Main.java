@@ -130,32 +130,33 @@ public class Main {
 		if (!hasFile) {
 			try {
 				StringBuilder descricao = new StringBuilder();
-				descricao.append(
-						"# Eh a aliquota anual da aplicacao que se espera fazer no inicio dos investimentos.\r\n");
-				descricao.append("aliquotaAplicacao:10.0\r\n\n");
+				
+				descricao.append(MARGEM).append("\n");
+				descricao.append("# EXPLICACAO DOS CAMPOS DO ARQUIVO\r\n");
+				descricao.append(MARGEM).append("\n");
 
-				descricao.append(
-						"# Eh a aliquota anual da aplicacao que se espera fazer ao inicio dos saques, por exemplo,\r\n# ao termino de 20 anos de aplicacao com aliquotaAplicacao=10.0%, pretende-se direcionar \r\n# toda a quantia acumulada para um investimento mais conversador que renda 5%.\r\n");
-				descricao.append("aliquotaReaplicacao:6.0\r\n\n");
+				descricao.append("# aliquotaAplicacao => Eh a aliquota anual da aplicacao que se espera fazer no inicio dos investimentos\r\n");
+				descricao.append("# aliquotaReaplicacao => Eh a aliquota anual da aplicacao que se espera fazer no inicio dos investimentos\r\n");
+				descricao.append("# aliquotaIR => Eh a aliquota media de Imposto de Renda sobre os saques efetuados.\r\n");
+				descricao.append("# aliquotaInflacao => Eh a aliquota media da inflacao anual.\r\n");
+				descricao.append("# qtdeAportes => Eh o numero de aportes que se deseja efetuar ate o inicio dos saques (inicio da aposentadoria).\r\n");
+				descricao.append("# valorInicial => Eh o valor do montante que se possui no momento do primeiro aporte.\r\n");
+				descricao.append("# valorAporte => Eh o valor do aporte mensal que se deseja fazer.\r\n");
+				descricao.append("# valorSaque => Eh o valor do saque mensal que se deseja fazer durante toda a aposentadoria.\r\n");
 
-				descricao.append("# Eh a aliquota media de Imposto de Renda sobre os saques efetuados.\r\n");
-				descricao.append("aliquotaIR:12.0\r\n\n");
-
-				descricao.append("# Eh a aliquota media da inflacao anual.\r\n");
-				descricao.append("aliquotaInflacao:4.5\r\n\n");
-
-				descricao.append(
-						"# Eh o numero de aportes que se deseja efetuar ate o inicio dos saques (inicio da aposentadoria).\r\n");
-				descricao.append("qtdeAportes:240\r\n\n");
-
-				descricao.append("# Eh o valor do montante que se possui no momento do primeiro aporte.\r\n");
-				descricao.append("valorInicial:100000\r\n\n");
-
-				descricao.append("# Eh o valor do aporte mensal que se deseja fazer.\r\n");
-				descricao.append("valorAporte:3000.0\r\n\n");
-
-				descricao.append("# Eh o valor do saque mensal que se deseja fazer durante toda a aposentadoria.\r\n");
+				descricao.append(MARGEM).append("\n");
+				descricao.append("# PREENCHA OS VALORES ABAIXO\r\n");
+				descricao.append(MARGEM).append("\n\n");
+				
+				descricao.append("aliquotaAplicacao:10.0\r\n");
+				descricao.append("aliquotaReaplicacao:6.0\r\n");
+				descricao.append("aliquotaIR:12.0\r\n");
+				descricao.append("aliquotaInflacao:4.5\r\n");
+				descricao.append("qtdeAportes:240\r\n");
+				descricao.append("valorInicial:100000\r\n");
+				descricao.append("valorAporte:3000.0\r\n");
 				descricao.append("valorSaque:4000.0\r\n");
+
 				BufferedWriter writer = new BufferedWriter(new FileWriter(dadosInvestimento));
 				writer.write(descricao.toString());
 				writer.close();
