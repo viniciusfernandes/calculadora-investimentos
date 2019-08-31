@@ -14,6 +14,7 @@ import java.util.Scanner;
 
 public class Main {
 	private static final String MARGEM = "---------------------------------------";
+	private static final String MARGEM_DUPLA = MARGEM + MARGEM;
 	private static final String ESPACO = "\n+\n+\n+\n+\n+\n+\n+\n+\n+\n+\n";
 	private static final DecimalFormat DF = new DecimalFormat("#.###");
 	private static final String pathDir = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -27,9 +28,9 @@ public class Main {
 	public static void main(final String[] args) {
 		gerarArquivoInvestimento();
 
-		System.out.println(MARGEM + MARGEM);
+		System.out.println(MARGEM_DUPLA);
 		System.out.println("Preencha o arquivo: investimento.txt");
-		System.out.println(MARGEM + MARGEM);
+		System.out.println(MARGEM_DUPLA);
 
 		String comando = "";
 		boolean leituraOk = true;
@@ -51,8 +52,7 @@ public class Main {
 				leituraOk = true;
 			} catch (Exception e) {
 				System.out.println(ESPACO);
-				System.out.println(
-						"HOUVE UMA FALHA NA LEITURA DO ARQUIVO DE INVESTIMENTO.");
+				System.out.println("HOUVE UMA FALHA NA LEITURA DO ARQUIVO DE INVESTIMENTO.");
 				leituraOk = false;
 				dadosInvestimento.delete();
 				gerarArquivoInvestimento();
@@ -105,11 +105,12 @@ public class Main {
 
 	private static void print(final Investimento invest) {
 		out.println(MARGEM + "\nValores Iniciais\n" + MARGEM);
+		out.println("Valor Inicial  : " + NumberFormat.getCurrencyInstance().format(invest.getValorInicial()));
 		out.println("Aporte Mensal  : " + NumberFormat.getCurrencyInstance().format(invest.getValorAporte()));
 		out.println("Saque Mensal   : " + NumberFormat.getCurrencyInstance().format(invest.getValorSaque()));
 		out.println("Qtde Aportes   : " + invest.getQtdeAportes());
-		out.println("Rend. Anual    : " + formatarAliquota(invest.getAliquotaAplicacao()));
-		out.println("Reinvestimento : " + formatarAliquota(invest.getAliquotaReaplicacao()));
+		out.println("Aliq. Aplic.   : " + formatarAliquota(invest.getAliquotaAplicacao()));
+		out.println("Aliq. Reaplic. : " + formatarAliquota(invest.getAliquotaReaplicacao()));
 		out.println(MARGEM);
 	}
 
@@ -130,32 +131,62 @@ public class Main {
 		if (!hasFile) {
 			try {
 				StringBuilder descricao = new StringBuilder();
-				
-				descricao.append(MARGEM).append("\n");
-				descricao.append("# EXPLICACAO DOS CAMPOS DO ARQUIVO\r\n");
-				descricao.append(MARGEM).append("\n");
 
-				descricao.append("# aliquotaAplicacao => Eh a aliquota anual da aplicacao que se espera fazer no inicio dos investimentos\r\n");
-				descricao.append("# aliquotaReaplicacao => Eh a aliquota anual da aplicacao que se espera fazer no inicio dos investimentos\r\n");
-				descricao.append("# aliquotaIR => Eh a aliquota media de Imposto de Renda sobre os saques efetuados.\r\n");
+				descricao.append(MARGEM_DUPLA).append("\n");
+				descricao.append("# O QUE EH O SISTEMA?\r\n");
+				descricao.append(MARGEM_DUPLA).append("\n");
+				descricao.append("# O objetivo principal eh simular um cenario simplificado de investimentos para\r\n");
+				descricao.append("# se ter um fluxo de saques para a aposentadoria privada.\r\n");
+				descricao.append(
+						"# A modelagem financeira pode ser exemplificada como a seguir: o investidor possui um valor inicial de R$100.000,00,\r\n");
+				descricao.append(
+						"# e ele pretende aplicar esse montante com um rendimento anual de 8%. Novos aportes mensais de R$4.000,00 serao efetuados\r\n");
+				descricao.append(
+						"# mensalmente com a mesma taxa de rendimento. Isso sera feito por 20 anos (240 aportes),\r\n");
+				descricao.append(
+						"# e ao termino desse periodo, a quantia final sera direcionada para um investimento mais conservador que rende 5% ao ano.\r\n");
+				descricao.append(
+						"# A partir desse momento, o investidor efetuara saques no valor de R$3.000,00 mensalmente. Alem disso, .\r\n");
+				descricao.append(
+						"# o Imposto de Renda incidira sobre o lucro de cada saque numa aliquota media de 10%.\r\n");
+				descricao.append(
+						"# Lembrando que em cada saque, eh efetuada a correcao da inflacao anual media de 4.5%.\r\n");
+				descricao.append(MARGEM_DUPLA).append("\n");
+
+				descricao.append(MARGEM_DUPLA).append("\n");
+				descricao.append("# DESCRICAO DOS CAMPOS DO ARQUIVO\r\n");
+				descricao.append(MARGEM_DUPLA).append("\n");
+
+				descricao.append(
+						"# aliquotaAplicacao => Eh a aliquota anual da aplicacao que se espera fazer no inicio dos investimentos\r\n");
+				descricao.append(
+						"# aliquotaReaplicacao => Eh a aliquota anual da aplicacao que se espera fazer no inicio dos investimentos\r\n");
+				descricao.append(
+						"# aliquotaIR => Eh a aliquota media de Imposto de Renda sobre os saques efetuados.\r\n");
 				descricao.append("# aliquotaInflacao => Eh a aliquota media da inflacao anual.\r\n");
-				descricao.append("# qtdeAportes => Eh o numero de aportes que se deseja efetuar ate o inicio dos saques (inicio da aposentadoria).\r\n");
-				descricao.append("# valorInicial => Eh o valor do montante que se possui no momento do primeiro aporte.\r\n");
+				descricao.append(
+						"# qtdeAportes => Eh o numero de aportes que se deseja efetuar ate o inicio dos saques (inicio da aposentadoria).\r\n");
+				descricao.append(
+						"# valorInicial => Eh o valor do montante que se possui no momento do primeiro aporte.\r\n");
 				descricao.append("# valorAporte => Eh o valor do aporte mensal que se deseja fazer.\r\n");
-				descricao.append("# valorSaque => Eh o valor do saque mensal que se deseja fazer durante toda a aposentadoria.\r\n");
+				descricao.append(
+						"# valorSaque => Eh o valor do saque mensal que se deseja fazer durante toda a aposentadoria.\r\n");
 
-				descricao.append(MARGEM).append("\n");
-				descricao.append("# PREENCHA OS VALORES ABAIXO\r\n");
-				descricao.append(MARGEM).append("\n\n");
-				
-				descricao.append("aliquotaAplicacao:10.0\r\n");
-				descricao.append("aliquotaReaplicacao:6.0\r\n");
-				descricao.append("aliquotaIR:12.0\r\n");
-				descricao.append("aliquotaInflacao:4.5\r\n");
-				descricao.append("qtdeAportes:240\r\n");
-				descricao.append("valorInicial:100000\r\n");
-				descricao.append("valorAporte:3000.0\r\n");
-				descricao.append("valorSaque:4000.0\r\n");
+				descricao.append(MARGEM_DUPLA).append("\n");
+				descricao
+						.append("# PREENCHA OS VALORES ABAIXO USANDO APENAS \".\" PARA SEPARAR AS CASAS DECIMAIS.\r\n");
+				descricao.append("# CASO QUEIRA SIMULAR NOVAMENTE, ALTERE OS VALOS DO ARQUIVO E DIGITE \"s\".\r\n");
+				descricao.append("# NAO EH NECESSARIO FECHAR O PROGRAMA.\r\n");
+				descricao.append(MARGEM_DUPLA).append("\n\n");
+
+				descricao.append("aliquotaAplicacao=10.0\r\n");
+				descricao.append("aliquotaReaplicacao=6.0\r\n");
+				descricao.append("aliquotaIR=12.0\r\n");
+				descricao.append("aliquotaInflacao=4.5\r\n");
+				descricao.append("qtdeAportes=240\r\n");
+				descricao.append("valorInicial=100000\r\n");
+				descricao.append("valorAporte=3000.0\r\n");
+				descricao.append("valorSaque=4000.0\r\n");
 
 				BufferedWriter writer = new BufferedWriter(new FileWriter(dadosInvestimento));
 				writer.write(descricao.toString());
