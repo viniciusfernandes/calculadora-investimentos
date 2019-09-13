@@ -4,7 +4,7 @@ public class ProjecaoInvestimento {
     private int qtdeAportes;
     private double valorFinal;
     private double valorReal;
-    private double valorInvestidoComInflacao;
+    private double valorInvestidoDepreciado;
     private double valorInvestido;
     private double aliquotaInflacaoMes;
     private double aliquotaInflacaoAcumulada;
@@ -38,12 +38,12 @@ public class ProjecaoInvestimento {
         this.valorReal = valorReal;
     }
 
-    public double getValorInvestidoComInflacao() {
-        return valorInvestidoComInflacao;
+    public double getValorInvestidoDepreciado() {
+        return valorInvestidoDepreciado;
     }
 
-    public void setValorInvestidoComInflacao(final double valorInvestidoComInflacao) {
-        this.valorInvestidoComInflacao = valorInvestidoComInflacao;
+    public void setValorInvestidoDepreciado(final double valorInvestidoDepreciado) {
+        this.valorInvestidoDepreciado = valorInvestidoDepreciado;
     }
 
     public double getValorInvestido() {

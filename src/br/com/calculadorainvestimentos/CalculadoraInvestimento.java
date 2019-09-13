@@ -24,7 +24,7 @@ public class CalculadoraInvestimento {
     private double valorFinal;
     private double valorInvestido;
     private double valorReal;
-    private double valorInvestidoComInflacao;
+    private double valorInvestidoDepreciado;
     private double valorPrimeiroSaque;
     private double valorUltimoSaque;
 
@@ -57,13 +57,13 @@ public class CalculadoraInvestimento {
         valorFinal = calcularValorFinal();
         valorInvestido = calcularValorInvestido();
         valorReal = valorAporte * calcularIndiceAcumulado(qtdeAportes, indiceReal);
-        valorInvestidoComInflacao = valorAporte * calcularIndiceAcumulado(qtdeAportes, -indiceInflacaoMes);
+        valorInvestidoDepreciado = valorAporte * calcularIndiceAcumulado(qtdeAportes, -indiceInflacaoMes);
 
         indiceGanhoFinal = (valorFinal - valorInvestido) / valorInvestido;
         indiceGanhoReal = (valorReal - valorInvestido) / valorInvestido;
 
-        if (valorInvestidoComInflacao != 0d) {
-            indiceInflacaoAcumulada = (valorInvestido - valorInvestidoComInflacao) / valorInvestidoComInflacao;
+        if (valorInvestidoDepreciado != 0d) {
+            indiceInflacaoAcumulada = (valorInvestido - valorInvestidoDepreciado) / valorInvestidoDepreciado;
         } else {
             indiceInflacaoAcumulada = 0;
         }
@@ -85,7 +85,7 @@ public class CalculadoraInvestimento {
         projInvest.setQtdeAportes(qtdeAportes);
         projInvest.setValorFinal(valorFinal);
         projInvest.setValorInvestido(valorInvestido);
-        projInvest.setValorInvestidoComInflacao(valorInvestidoComInflacao);
+        projInvest.setValorInvestidoDepreciado(valorInvestidoDepreciado);
         projInvest.setValorReal(valorReal);
         projInvest.setAliquotaAplicacaoMes(indiceAplicacaoMes * 100);
         projInvest.setAliquotaReal(indiceReal * 100);
@@ -172,6 +172,6 @@ public class CalculadoraInvestimento {
 
     private double calcularValorFinal() {
         final double idxAplicMes = calcularIndiceMensal(indiceAplicacao);
-        return valorInicial * pow(1 + idxAplicMes, qtdeAportes - 1d) + valorAporte * calcularIndiceAcumulado(qtdeAportes, idxAplicMes);
+        return valorInicial * pow(1 + idxAplicMes, qtdeAportes - 1d) + valorAporte * calcularIndiceAcumulado(qtdeAportes, idxAplicMes, indiceInflacaoMes);
     }
 }

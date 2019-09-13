@@ -69,7 +69,7 @@ public class Main {
         out.println("Tempo Invest.  : " + formatarTempo(projecaoInvest.getQtdeAportes()));
 
         out.println("Val. Investido : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestido()));
-        out.println("Val. Depreci.  : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestidoComInflacao()));
+        out.println("Val. Depreci.  : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorInvestidoDepreciado()));
         out.println("Val. Final     : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorFinal()));
         out.println("Val. Real      : " + NumberFormat.getCurrencyInstance().format(projecaoInvest.getValorReal()));
 
